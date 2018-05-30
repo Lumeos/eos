@@ -27,3 +27,8 @@ THE SOFTWARE.
 # To contribute:
 Please run `format_cpp.sh` before commiting
 
+# Why weird naming/format?
+EOS is strict about naming convention.
+
+# Why don't just use boost everywhere?
+rtti disabled, threads disabled.

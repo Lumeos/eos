@@ -42,6 +42,7 @@ struct user {
     uint32_t m_dateOfBirth;  // YYYYMMDD, eos build is limitied, so no
                              // boost::date here
     lumeos::address m_address;
+    std::set<eosio::name> m_friends;
 
     user()
         : m_accountName(), m_name(), m_email(), m_dateOfBirth(0), m_address() {}
@@ -60,12 +61,14 @@ struct user {
                              "dob: " + std::to_string(m_dateOfBirth) +
                              " "
                              "address: " +
-                             static_cast<std::string>(m_address);
+                             static_cast<std::string>(m_address) +
+                             " #friends: " + std::to_string(m_friends.size())
+                             ;
         return result;
     }
 
     EOSLIB_SERIALIZE(user,
-                     (m_accountName)(m_name)(m_email)(m_dateOfBirth)(m_address))
+                     (m_accountName)(m_name)(m_email)(m_dateOfBirth)(m_address)(m_friends))
 };
 
 }  // namespace lumeos
