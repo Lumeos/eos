@@ -150,10 +150,12 @@ struct Users : public eosio::contract {
         auto firstAccountItr = getUserItr(firstAccountName, users);
         auto secondAccountItr = getUserItr(secondAccountName, users);
 
-        users.modify(firstAccountItr, _self,
-                     [&](auto& user) { user.m_friends.emplace_back(secondAccountName); });
-        users.modify(secondAccountItr, _self,
-                     [&](auto& user) { user.m_friends.emplace_back(firstAccountName); });
+        users.modify(firstAccountItr, _self, [&](auto& user) {
+            user.m_friends.emplace_back(secondAccountName);
+        });
+        users.modify(secondAccountItr, _self, [&](auto& user) {
+            user.m_friends.emplace_back(firstAccountName);
+        });
     }
 
     void unfriend(eosio::name const firstAccountName,
@@ -163,21 +165,27 @@ struct Users : public eosio::contract {
         auto firstAccountItr = getUserItr(firstAccountName, users);
         auto secondAccountItr = getUserItr(secondAccountName, users);
 
-        users.modify(firstAccountItr, _self,
-                     [&](auto& user) { auto& friends = user.m_friends;
-                     friends.erase(std::remove(friends.begin(), friends.end(), secondAccountName), friends.end());
-                     });
-        users.modify(secondAccountItr, _self,
-                     [&](auto& user) { auto& friends = user.m_friends;
-                         friends.erase(std::remove(friends.begin(), friends.end(), firstAccountName), friends.end());
-                     });
+        users.modify(firstAccountItr, _self, [&](auto& user) {
+            auto& friends = user.m_friends;
+            friends.erase(
+                std::remove(friends.begin(), friends.end(), secondAccountName),
+                friends.end());
+        });
+        users.modify(secondAccountItr, _self, [&](auto& user) {
+            auto& friends = user.m_friends;
+            friends.erase(
+                std::remove(friends.begin(), friends.end(), firstAccountName),
+                friends.end());
+        });
     }
 
     // @abi action
     void updateflist(eosio::name const firstAccountName,
-                      eosio::name const secondAccountName, bool becomingFriends) {
-        eosio_assert( firstAccountName != secondAccountName, "Cannot self friend" );
-        require_auth( _self );
+                     eosio::name const secondAccountName,
+                     bool becomingFriends) {
+        eosio_assert(firstAccountName != secondAccountName,
+                     "Cannot self friend");
+        require_auth(_self);
 
         if (becomingFriends) {
             makeFriends(firstAccountName, secondAccountName);
@@ -187,6 +195,7 @@ struct Users : public eosio::contract {
     }
 };  // Users
 
-EOSIO_ABI(Users, (create)(remove)(setemail)(setname)(setdob)(getuser)(updateflist))
+EOSIO_ABI(Users,
+          (create)(remove)(setemail)(setname)(setdob)(getuser)(updateflist))
 
 }  // namespace lumeos

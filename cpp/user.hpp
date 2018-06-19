@@ -62,13 +62,12 @@ struct user {
                              " "
                              "address: " +
                              static_cast<std::string>(m_address) +
-                             " #friends: " + std::to_string(m_friends.size())
-                             ;
+                             " #friends: " + std::to_string(m_friends.size());
         return result;
     }
 
-    EOSLIB_SERIALIZE(user,
-                     (m_accountName)(m_name)(m_email)(m_dateOfBirth)(m_address)(m_friends))
+    EOSLIB_SERIALIZE(user, (m_accountName)(m_name)(m_email)(m_dateOfBirth)(
+                               m_address)(m_friends))
 };
 
 }  // namespace lumeos
