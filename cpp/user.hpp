@@ -25,7 +25,7 @@
 #ifndef LUMEOS_USER_H
 #define LUMEOS_USER_H
 
-#include <address.hpp>
+#include "address.hpp"
 
 #include <eosiolib/eosio.hpp>
 
@@ -42,7 +42,7 @@ struct user {
     uint32_t m_dateOfBirth;  // YYYYMMDD, eos build is limitied, so no
                              // boost::date here
     lumeos::address m_address;
-    std::set<eosio::name> m_friends;
+    std::vector<eosio::name> m_friends;
 
     user()
         : m_accountName(), m_name(), m_email(), m_dateOfBirth(0), m_address() {}

@@ -22,7 +22,7 @@
 //  IN THE SOFTWARE.
 //
 
-#include <users.hpp>
+#include "users.hpp"
 
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/print.hpp>
@@ -35,7 +35,7 @@ struct Users : public eosio::contract {
     using userIndex = eosio::multi_index<N(user), user>;
 
    public:
-    Users(account_name self) : contract(self) {}
+    explicit Users(account_name self) : contract(self) {}
 
     //@abi action
     void create(
@@ -151,9 +151,9 @@ struct Users : public eosio::contract {
         auto secondAccountItr = getUserItr(secondAccountName, users);
 
         users.modify(firstAccountItr, _self,
-                     [&](auto& user) { user.m_friends.insert(secondAccountName); });
+                     [&](auto& user) { user.m_friends.emplace_back(secondAccountName); });
         users.modify(secondAccountItr, _self,
-                     [&](auto& user) { user.m_friends.insert(firstAccountName); });
+                     [&](auto& user) { user.m_friends.emplace_back(firstAccountName); });
     }
 
     void unfriend(eosio::name const firstAccountName,
@@ -164,9 +164,13 @@ struct Users : public eosio::contract {
         auto secondAccountItr = getUserItr(secondAccountName, users);
 
         users.modify(firstAccountItr, _self,
-                     [&](auto& user) { user.m_friends.erase(secondAccountName); });
+                     [&](auto& user) { auto& friends = user.m_friends;
+                     friends.erase(std::remove(friends.begin(), friends.end(), secondAccountName), friends.end());
+                     });
         users.modify(secondAccountItr, _self,
-                     [&](auto& user) { user.m_friends.erase(firstAccountName); });
+                     [&](auto& user) { auto& friends = user.m_friends;
+                         friends.erase(std::remove(friends.begin(), friends.end(), firstAccountName), friends.end());
+                     });
     }
 
     // @abi action

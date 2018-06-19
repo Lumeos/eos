@@ -25,7 +25,7 @@
 #ifndef LUMEOS_USERS_H
 #define LUMEOS_USERS_H
 
-#include <user.hpp>
+#include "user.hpp"
 
 namespace lumeos {}  // namespace lumeos
 

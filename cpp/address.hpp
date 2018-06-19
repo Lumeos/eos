@@ -53,7 +53,7 @@ struct address {
         m_street = tokens[0];
         m_city = tokens[1];
         m_country = tokens[2];
-        m_postalCode = std::stoi(tokens[3]);
+        m_postalCode = std::stoul(tokens[3]);
     }
 
     operator std::string() const {
