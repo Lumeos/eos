@@ -27,6 +27,54 @@
 
 #include "user.hpp"
 
-namespace lumeos {}  // namespace lumeos
+namespace lumeos {
+
+struct Users : public eosio::contract {
+   public:
+    using userIndex = eosio::multi_index<N(user), user>;
+
+    explicit Users(account_name self) : contract(self) {}
+
+    // @abi action
+    void create(
+        eosio::name const accountName, std::string const& name,
+        std::string const& email,
+        std::string const& addressStr,  // "street:city:country:postal_code"
+        uint32_t dateOfBirth);
+
+    // @abi action
+    void remove(eosio::name const accountName, std::string const& feedback);
+
+    // @abi action
+    void setemail(eosio::name const accountName, std::string const& email);
+
+    // @abi action
+    void setname(eosio::name const accountName, std::string const& name);
+
+    // @abi action
+    void setdob(eosio::name const accountName, uint32_t YYYYMMDD);
+
+    // @abi action
+    void getuser(eosio::name const accountName);
+
+    // @abi action
+    void updateflist(eosio::name const firstAccountName,
+                     eosio::name const secondAccountName, bool becomingFriends);
+
+   private:
+    void validateUser(eosio::name const accountName);
+
+    void makeFriends(eosio::name const firstAccountName,
+                     eosio::name const secondAccountName);
+
+    void unfriend(eosio::name const firstAccountName,
+                  eosio::name const secondAccountName);
+
+};  // Users
+
+EOSIO_ABI(Users,
+          (create)(remove)(setemail)(setname)(setdob)(getuser)(updateflist))
+
+}  // namespace lumeos
 
 #endif  // LUMEOS_USERS_H

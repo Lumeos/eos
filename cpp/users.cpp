@@ -27,175 +27,159 @@
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/print.hpp>
 
-namespace lumeos {
+namespace {
 
-// TODO: Add validations etc. cants use most of the boost here
+auto getUserItr(eosio::name const accountName,
+                lumeos::Users::userIndex const& users) {
+    auto result = users.find(accountName);
+    eosio_assert(
+        result != users.end(),
+        std::string("User not found: " + accountName.to_string()).c_str());
 
-struct Users : public eosio::contract {
-    using userIndex = eosio::multi_index<N(user), user>;
+    return result;
+}
 
-   public:
-    explicit Users(account_name self) : contract(self) {}
+}  // namespace
 
-    //@abi action
-    void create(
-        eosio::name const accountName, std::string const& name,
-        std::string const& email,
-        std::string const& addressStr,  // "street:city:country:postal_code"
-        uint32_t dateOfBirth) {
-        require_auth(accountName);
+void lumeos::Users::create(
+    eosio::name const accountName, std::string const& name,
+    std::string const& email,
+    std::string const& addressStr,  // "street:city:country:postal_code"
+    uint32_t dateOfBirth) {
+    require_auth(accountName);
 
-        userIndex users(_self, _self);
-        eosio_assert(users.find(accountName) == users.end(),
-                     "User already exists.");
+    userIndex users(_self, _self);
+    eosio_assert(users.find(accountName) == users.end(),
+                 "User already exists.");
 
-        users.emplace(accountName, [&](auto& user) {
-            user.m_accountName = accountName;
-            user.m_name = name;
-            user.m_email = email;
-            user.m_dateOfBirth = dateOfBirth;
-            user.m_address = address(addressStr);
-        });
+    users.emplace(accountName, [&](auto& user) {
+        user.m_accountName = accountName;
+        user.m_name = name;
+        user.m_email = email;
+        user.m_dateOfBirth = dateOfBirth;
+        user.m_address = address(addressStr);
+    });
+}
+
+void lumeos::Users::remove(eosio::name const accountName,
+                           std::string const& feedback) {
+    // feedback for us to know why they deleting their account
+    require_auth(accountName);
+    userIndex users(_self, _self);
+    auto accountItr = users.find(accountName);
+    eosio_assert(accountItr != users.end(), "User not found.");
+
+    users.erase(accountItr);
+    eosio::print(std::string("erased: " + accountName.to_string() +
+                             " with reason: " + feedback)
+                     .c_str());
+}
+
+void lumeos::Users::setemail(eosio::name const accountName,
+                             std::string const& email) {
+    // email validation should be done on front end,
+    // i am restricted what I can use here.
+    // but maybe some basic checks to make sure?
+    require_auth(accountName);
+
+    userIndex users(_self, _self);
+
+    auto accountItr = users.find(accountName);
+    eosio_assert(accountItr != users.end(), "User not found.");
+
+    users.modify(accountItr, accountName,
+                 [&](auto& user) { user.m_email = email; });
+}
+
+void lumeos::Users::setname(eosio::name const accountName,
+                            std::string const& name) {
+    require_auth(accountName);
+
+    userIndex users(_self, _self);
+
+    auto accountItr = users.find(accountName);
+    eosio_assert(
+        accountItr != users.end(),
+        std::string("User not found: " + accountName.to_string()).c_str());
+
+    users.modify(accountItr, accountName,
+                 [&](auto& user) { user.m_name = name; });
+}
+
+void lumeos::Users::setdob(eosio::name const accountName, uint32_t YYYYMMDD) {
+    require_auth(accountName);
+
+    userIndex users(_self, _self);
+
+    auto accountItr = users.find(accountName);
+    eosio_assert(
+        accountItr != users.end(),
+        std::string("User not found: " + accountName.to_string()).c_str());
+
+    users.modify(accountItr, accountName,
+                 [&](auto& user) { user.m_dateOfBirth = YYYYMMDD; });
+}
+
+void lumeos::Users::getuser(eosio::name const accountName) {
+    userIndex users(_self, _self);
+
+    eosio_assert(users.find(accountName) != users.end(), "User not found");
+    auto const& currentUser = users.get(accountName);
+    eosio::print(static_cast<std::string>(currentUser).c_str());
+}
+
+void lumeos::Users::updateflist(eosio::name const firstAccountName,
+                                eosio::name const secondAccountName,
+                                bool becomingFriends) {
+    eosio_assert(firstAccountName != secondAccountName, "Cannot self friend");
+    require_auth(_self);
+
+    if (becomingFriends) {
+        makeFriends(firstAccountName, secondAccountName);
+    } else {
+        unfriend(firstAccountName, secondAccountName);
     }
+}
 
-    //@abi action
-    void remove(eosio::name const accountName, std::string const& feedback) {
-        // feedback for us to know why they deleting their account
-        require_auth(accountName);
-        userIndex users(_self, _self);
-        auto accountItr = users.find(accountName);
-        eosio_assert(accountItr != users.end(), "User not found.");
+void lumeos::Users::validateUser(eosio::name const accountName) {
+    userIndex users(_self, _self);
+    eosio_assert(
+        users.find(accountName) != users.end(),
+        std::string("User not found: " + accountName.to_string()).c_str());
+}
 
-        users.erase(accountItr);
-        eosio::print(std::string("erased: " + accountName.to_string() +
-                                 " with reason: " + feedback)
-                         .c_str());
-    }
+void lumeos::Users::makeFriends(eosio::name const firstAccountName,
+                                eosio::name const secondAccountName) {
+    userIndex users(_self, _self);
 
-    // @abi action
-    void setemail(eosio::name const accountName, std::string const& email) {
-        // email validation should be done on front end,
-        // i am restricted what I can use here.
-        // but maybe some basic checks to make sure?
-        require_auth(accountName);
+    auto firstAccountItr = getUserItr(firstAccountName, users);
+    auto secondAccountItr = getUserItr(secondAccountName, users);
 
-        userIndex users(_self, _self);
+    users.modify(firstAccountItr, _self, [&](auto& user) {
+        user.m_friends.emplace_back(secondAccountName);
+    });
+    users.modify(secondAccountItr, _self, [&](auto& user) {
+        user.m_friends.emplace_back(firstAccountName);
+    });
+}
 
-        auto accountItr = users.find(accountName);
-        eosio_assert(accountItr != users.end(), "User not found.");
+void lumeos::Users::unfriend(eosio::name const firstAccountName,
+                             eosio::name const secondAccountName) {
+    userIndex users(_self, _self);
 
-        users.modify(accountItr, accountName,
-                     [&](auto& user) { user.m_email = email; });
-    }
+    auto firstAccountItr = getUserItr(firstAccountName, users);
+    auto secondAccountItr = getUserItr(secondAccountName, users);
 
-    // @abi action
-    void setname(eosio::name const accountName, std::string const& name) {
-        require_auth(accountName);
-
-        userIndex users(_self, _self);
-
-        auto accountItr = users.find(accountName);
-        eosio_assert(
-            accountItr != users.end(),
-            std::string("User not found: " + accountName.to_string()).c_str());
-
-        users.modify(accountItr, accountName,
-                     [&](auto& user) { user.m_name = name; });
-    }
-
-    // @abi action
-    void setdob(eosio::name const accountName, uint32_t YYYYMMDD) {
-        require_auth(accountName);
-
-        userIndex users(_self, _self);
-
-        auto accountItr = users.find(accountName);
-        eosio_assert(
-            accountItr != users.end(),
-            std::string("User not found: " + accountName.to_string()).c_str());
-
-        users.modify(accountItr, accountName,
-                     [&](auto& user) { user.m_dateOfBirth = YYYYMMDD; });
-    }
-
-    // @abi action
-    void getuser(eosio::name const accountName) {
-        userIndex users(_self, _self);
-
-        eosio_assert(users.find(accountName) != users.end(), "User not found");
-        auto const& currentUser = users.get(accountName);
-        eosio::print(static_cast<std::string>(currentUser).c_str());
-    }
-
-    auto getUserItr(eosio::name const accountName, userIndex const& users) {
-        auto result = users.find(accountName);
-        eosio_assert(
-            result != users.end(),
-            std::string("User not found: " + accountName.to_string()).c_str());
-
-        return result;
-    }
-
-    void validateUser(eosio::name const accountName) {
-        userIndex users(_self, _self);
-        eosio_assert(
-            users.find(accountName) != users.end(),
-            std::string("User not found: " + accountName.to_string()).c_str());
-    }
-
-    void makeFriends(eosio::name const firstAccountName,
-                     eosio::name const secondAccountName) {
-        userIndex users(_self, _self);
-
-        auto firstAccountItr = getUserItr(firstAccountName, users);
-        auto secondAccountItr = getUserItr(secondAccountName, users);
-
-        users.modify(firstAccountItr, _self, [&](auto& user) {
-            user.m_friends.emplace_back(secondAccountName);
-        });
-        users.modify(secondAccountItr, _self, [&](auto& user) {
-            user.m_friends.emplace_back(firstAccountName);
-        });
-    }
-
-    void unfriend(eosio::name const firstAccountName,
-                  eosio::name const secondAccountName) {
-        userIndex users(_self, _self);
-
-        auto firstAccountItr = getUserItr(firstAccountName, users);
-        auto secondAccountItr = getUserItr(secondAccountName, users);
-
-        users.modify(firstAccountItr, _self, [&](auto& user) {
-            auto& friends = user.m_friends;
-            friends.erase(
-                std::remove(friends.begin(), friends.end(), secondAccountName),
-                friends.end());
-        });
-        users.modify(secondAccountItr, _self, [&](auto& user) {
-            auto& friends = user.m_friends;
-            friends.erase(
-                std::remove(friends.begin(), friends.end(), firstAccountName),
-                friends.end());
-        });
-    }
-
-    // @abi action
-    void updateflist(eosio::name const firstAccountName,
-                     eosio::name const secondAccountName,
-                     bool becomingFriends) {
-        eosio_assert(firstAccountName != secondAccountName,
-                     "Cannot self friend");
-        require_auth(_self);
-
-        if (becomingFriends) {
-            makeFriends(firstAccountName, secondAccountName);
-        } else {
-            unfriend(firstAccountName, secondAccountName);
-        }
-    }
-};  // Users
-
-EOSIO_ABI(Users,
-          (create)(remove)(setemail)(setname)(setdob)(getuser)(updateflist))
-
-}  // namespace lumeos
+    users.modify(firstAccountItr, _self, [&](auto& user) {
+        auto& friends = user.m_friends;
+        friends.erase(
+            std::remove(friends.begin(), friends.end(), secondAccountName),
+            friends.end());
+    });
+    users.modify(secondAccountItr, _self, [&](auto& user) {
+        auto& friends = user.m_friends;
+        friends.erase(
+            std::remove(friends.begin(), friends.end(), firstAccountName),
+            friends.end());
+    });
+}
