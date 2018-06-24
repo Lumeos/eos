@@ -25,25 +25,29 @@
 #ifndef LUMEOS_USERS_H
 #define LUMEOS_USERS_H
 
+#include "poll.hpp"
 #include "user.hpp"
+
+#include <eosiolib/symbol.hpp>
 
 namespace lumeos {
 
 struct Users : public eosio::contract {
    public:
     using userIndex = eosio::multi_index<N(user), user>;
+    using pollIndex = eosio::multi_index<N(poll), poll>;
 
     explicit Users(account_name self) : contract(self) {}
 
     // @abi action
-    void create(
+    void createuser(
         eosio::name const accountName, std::string const& name,
         std::string const& email,
         std::string const& addressStr,  // "street:city:country:postal_code"
         uint32_t dateOfBirth);
 
     // @abi action
-    void remove(eosio::name const accountName, std::string const& feedback);
+    void removeuser(eosio::name const accountName, std::string const& feedback);
 
     // @abi action
     void setemail(eosio::name const accountName, std::string const& email);
@@ -61,6 +65,18 @@ struct Users : public eosio::contract {
     void updateflist(eosio::name const firstAccountName,
                      eosio::name const secondAccountName, bool becomingFriends);
 
+    // @abi action
+    void createpoll(eosio::name const& accountName, std::string const& question,
+                    std::vector<std::string> const& answers,
+                    std::vector<std::string> const& tags);
+
+    // @abi action
+    void removepoll(eosio::name const& accountName, uint64_t pollId);
+
+    // @abi action
+    void answerpoll(eosio::name const& accountName, uint64_t pollId,
+                    uint8_t answerIndex);
+
    private:
     void validateUser(eosio::name const accountName);
 
@@ -70,10 +86,13 @@ struct Users : public eosio::contract {
     void unfriend(eosio::name const firstAccountName,
                   eosio::name const secondAccountName);
 
+    eosio::symbol_type LUME =
+        eosio::symbol_type(eosio::string_to_symbol(4, "LUME"));
+
 };  // Users
 
-EOSIO_ABI(Users,
-          (create)(remove)(setemail)(setname)(setdob)(getuser)(updateflist))
+EOSIO_ABI(Users, (createuser)(removeuser)(setemail)(setname)(setdob)(getuser)(
+                     updateflist)(createpoll)(answerpoll)(removepoll))
 
 }  // namespace lumeos
 

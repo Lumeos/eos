@@ -41,7 +41,7 @@ auto getUserItr(eosio::name const accountName,
 
 }  // namespace
 
-void lumeos::Users::create(
+void lumeos::Users::createuser(
     eosio::name const accountName, std::string const& name,
     std::string const& email,
     std::string const& addressStr,  // "street:city:country:postal_code"
@@ -51,6 +51,7 @@ void lumeos::Users::create(
     userIndex users(_self, _self);
     eosio_assert(users.find(accountName) == users.end(),
                  "User already exists.");
+    users.available_primary_key();
 
     users.emplace(accountName, [&](auto& user) {
         user.m_accountName = accountName;
@@ -61,8 +62,8 @@ void lumeos::Users::create(
     });
 }
 
-void lumeos::Users::remove(eosio::name const accountName,
-                           std::string const& feedback) {
+void lumeos::Users::removeuser(eosio::name const accountName,
+                               std::string const& feedback) {
     // feedback for us to know why they deleting their account
     require_auth(accountName);
     userIndex users(_self, _self);
@@ -181,5 +182,66 @@ void lumeos::Users::unfriend(eosio::name const firstAccountName,
         friends.erase(
             std::remove(friends.begin(), friends.end(), firstAccountName),
             friends.end());
+    });
+}
+
+void lumeos::Users::createpoll(eosio::name const& accountName,
+                               std::string const& question,
+                               std::vector<std::string> const& answers,
+                               std::vector<std::string> const& tags) {
+    require_auth(accountName);
+    validateUser(accountName);
+
+    pollIndex polls(_self, _self);
+
+    polls.emplace(_self, [&](auto& poll) {
+        poll.m_pollId = polls.available_primary_key();
+        poll.m_question = question;
+        std::transform(answers.cbegin(), answers.cend(),
+                       std::back_inserter(poll.m_choices),
+                       [](std::string const& val) { return PollChoice(val); });
+        poll.m_tags = tags;
+        poll.m_creator = accountName;
+    });
+}
+
+void lumeos::Users::removepoll(eosio::name const& accountName,
+                               uint64_t pollId) {
+    require_auth(accountName);
+    validateUser(accountName);
+    pollIndex polls(_self, _self);
+
+    auto pollItr = polls.find(pollId);
+    eosio_assert(pollItr != polls.end(), "Poll not found.");
+
+    // user can only delete poll if he created it and no one else answered yet.
+    eosio_assert(pollItr->m_creator == accountName,
+                 "You need to be creator to delete poll.");
+    eosio_assert(pollItr->m_participants.empty(),
+                 "You cannot delete poll that has been answered already.");
+
+    polls.erase(pollItr);
+}
+
+void lumeos::Users::answerpoll(eosio::name const& accountName, uint64_t pollId,
+                               uint8_t answerIndex) {
+    require_auth(accountName);
+    validateUser(accountName);
+
+    pollIndex polls(_self, _self);
+
+    auto pollItr = polls.find(pollId);
+    eosio_assert(pollItr != polls.end(), "Poll not found.");
+
+    // creator can answer own poll
+    eosio_assert(std::find(pollItr->m_participants.cbegin(),
+                           pollItr->m_participants.cend(),
+                           accountName) == pollItr->m_participants.end(),
+                 "User already answered this poll.");
+    eosio_assert(pollItr->m_choices.size() > answerIndex,
+                 "Index is larger than number of choices");
+    polls.modify(pollItr, _self, [&](auto& poll) {
+        poll.m_participants.push_back(accountName);
+        poll.m_choices[answerIndex].m_count += 1;
     });
 }
