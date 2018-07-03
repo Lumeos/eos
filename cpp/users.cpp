@@ -215,7 +215,11 @@ void lumeos::Users::createpoll(eosio::name const& accountName,
     auto& currentUser = users.get(accountName);
 
     if(currentUser.m_numCreated > 2) {
-
+        // ASSUMPTIONS
+        // issuer account created already : in this case <anorak>
+        // eosio.token contract is deployed by the issuer
+        // LUME created by issuer
+        // account name has eosio.code permission
         eosio::action(std::vector<eosio::permission_level>(2, {accountName, N(active)}), N(anorak), N(transfer),
                       make_tuple(accountName, N(anorak), pollPrice, std::string(""))).send();
     }
