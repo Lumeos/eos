@@ -26,6 +26,11 @@
 
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/print.hpp>
+#include <eosiolib/asset.hpp>
+#include <eosiolib/action.hpp>
+
+#include <vector>
+#include <string>
 
 namespace {
 
@@ -185,6 +190,15 @@ void lumeos::Users::unfriend(eosio::name const firstAccountName,
     });
 }
 
+void lumeos::Users::incNumCreated(eosio::name const accountName) {
+    userIndex users(_self, _self);
+
+    auto userAccountItr = getUserItr(accountName, users);
+
+    users.modify(userAccountItr, _self, [&](auto& user) {
+        user.m_numCreated++;
+    });
+}
 void lumeos::Users::createpoll(eosio::name const& accountName,
                                std::string const& question,
                                std::vector<std::string> const& answers,
@@ -194,6 +208,17 @@ void lumeos::Users::createpoll(eosio::name const& accountName,
 
     pollIndex polls(_self, _self);
 
+    // TODO: dynamic pricing based on LUMES staked
+    eosio::asset pollPrice = eosio::asset(10000000, eosio::string_to_symbol(4, "LUME"));
+
+    userIndex users(_self, _self);
+    auto& currentUser = users.get(accountName);
+
+    if(currentUser.m_numCreated > 2) {
+
+        eosio::action(std::vector<eosio::permission_level>(2, {accountName, N(active)}), N(anorak), N(transfer),
+                      make_tuple(accountName, N(anorak), pollPrice, std::string(""))).send();
+    }
     polls.emplace(_self, [&](auto& poll) {
         poll.m_pollId = polls.available_primary_key();
         poll.m_question = question;
@@ -203,6 +228,8 @@ void lumeos::Users::createpoll(eosio::name const& accountName,
         poll.m_tags = tags;
         poll.m_creator = accountName;
     });
+
+    incNumCreated(accountName);
 }
 
 void lumeos::Users::removepoll(eosio::name const& accountName,
@@ -244,4 +271,22 @@ void lumeos::Users::answerpoll(eosio::name const& accountName, uint64_t pollId,
         poll.m_participants.push_back(accountName);
         poll.m_choices[answerIndex].m_count += 1;
     });
+}
+
+void lumeos::Users::searchpoll(eosio::name const& accountName,
+                               std::string tag) {
+    validateUser(accountName);
+
+    pollIndex allPolls(_self, _self);
+
+    for(const auto& p : allPolls) {
+        std::string pid = "Looking at poll ID: " + std::to_string(p.m_pollId) + "\n";
+        eosio::print(pid);
+        if(std::find(p.m_tags.cbegin(),p.m_tags.cend(),tag) != p.m_tags.end())
+        {
+            std::string res = "Found Poll Question: " + p.m_question + "\n";
+            eosio::print(res);
+            //eosio::print("Found Poll ID: ", poll.m_pollId);
+        }
+    }
 }

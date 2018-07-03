@@ -43,9 +43,10 @@ struct user {
                              // boost::date here
     lumeos::address m_address;
     std::vector<eosio::name> m_friends;
+    uint32_t m_numCreated;
 
     user()
-        : m_accountName(), m_name(), m_email(), m_dateOfBirth(0), m_address() {}
+        : m_accountName(), m_name(), m_email(), m_dateOfBirth(0), m_address(), m_numCreated(0) {}
 
     uint64_t primary_key() const { return m_accountName; }
 
@@ -62,12 +63,13 @@ struct user {
                              " "
                              "address: " +
                              static_cast<std::string>(m_address) +
-                             " #friends: " + std::to_string(m_friends.size());
+                             " #friends: " + std::to_string(m_friends.size()) +
+                             " # poll created: " + std::to_string(m_numCreated);
         return result;
     }
 
     EOSLIB_SERIALIZE(user, (m_accountName)(m_name)(m_email)(m_dateOfBirth)(
-                               m_address)(m_friends))
+                               m_address)(m_friends)(m_numCreated))
 };
 
 }  // namespace lumeos

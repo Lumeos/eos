@@ -77,7 +77,10 @@ struct Users : public eosio::contract {
     void answerpoll(eosio::name const& accountName, uint64_t pollId,
                     uint8_t answerIndex);
 
-   private:
+    // @abi action
+    void searchpoll(eosio::name const& accountName, std::string tag);
+
+private:
     void validateUser(eosio::name const accountName);
 
     void makeFriends(eosio::name const firstAccountName,
@@ -86,13 +89,15 @@ struct Users : public eosio::contract {
     void unfriend(eosio::name const firstAccountName,
                   eosio::name const secondAccountName);
 
+    void incNumCreated(eosio::name const accountName);
+
     eosio::symbol_type LUME =
         eosio::symbol_type(eosio::string_to_symbol(4, "LUME"));
 
 };  // Users
 
 EOSIO_ABI(Users, (createuser)(removeuser)(setemail)(setname)(setdob)(getuser)(
-                     updateflist)(createpoll)(answerpoll)(removepoll))
+                     updateflist)(createpoll)(answerpoll)(removepoll)(searchpoll))
 
 }  // namespace lumeos
 
