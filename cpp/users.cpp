@@ -214,7 +214,7 @@ void lumeos::Users::createpoll(eosio::name const& accountName,
     userIndex users(_self, _self);
     auto& currentUser = users.get(accountName);
 
-    if(currentUser.m_numCreated > 2) {
+    if(currentUser.m_numCreated >= 2) {
         // ASSUMPTIONS
         // issuer account created already : in this case <bank>
         // eosio.token contract is deployed by the issuer
