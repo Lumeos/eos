@@ -25,8 +25,8 @@
 #ifndef LUMEOS_USERS_H
 #define LUMEOS_USERS_H
 
-#include "poll.hpp"
-#include "user.hpp"
+#include <poll.hpp>
+#include <user.hpp>
 
 #include <eosiolib/symbol.hpp>
 
@@ -40,59 +40,31 @@ struct Users : public eosio::contract {
     explicit Users(account_name self) : contract(self) {}
 
     // @abi action
-    void createuser(
-        eosio::name const accountName, std::string const& name,
-        std::string const& email,
-        std::string const& addressStr,  // "street:city:country:postal_code"
-        uint32_t dateOfBirth);
+    void createuser(eosio::name const accountName, uint32_t userId, std::string const& ipfsHash);
 
     // @abi action
-    void removeuser(eosio::name const accountName, std::string const& feedback);
+    void removeuser(eosio::name const accountName);
 
     // @abi action
-    void setemail(eosio::name const accountName, std::string const& email);
+    void createpoll(eosio::name const& accountName,
+                    uint32_t pollId,
+                    double price,
+                    std::string const& ipfsHash);
 
     // @abi action
-    void setname(eosio::name const accountName, std::string const& name);
+    void removepoll(eosio::name const& accountName, uint32_t pollId);
 
-    // @abi action
-    void setdob(eosio::name const accountName, uint32_t YYYYMMDD);
-
-    // @abi action
-    void getuser(eosio::name const accountName);
-
-    // @abi action
-    void updateflist(eosio::name const firstAccountName,
-                     eosio::name const secondAccountName, bool becomingFriends);
-
-    // @abi action
-    void createpoll(eosio::name const& accountName, std::string const& question,
-                    std::vector<std::string> const& answers,
-                    std::vector<std::string> const& tags);
-
-    // @abi action
-    void removepoll(eosio::name const& accountName, uint64_t pollId);
-
-    // @abi action
-    void answerpoll(eosio::name const& accountName, uint64_t pollId,
-                    uint8_t answerIndex);
+    // TODO: buy poll
 
    private:
     void validateUser(eosio::name const accountName);
-
-    void makeFriends(eosio::name const firstAccountName,
-                     eosio::name const secondAccountName);
-
-    void unfriend(eosio::name const firstAccountName,
-                  eosio::name const secondAccountName);
 
     eosio::symbol_type LUME =
         eosio::symbol_type(eosio::string_to_symbol(4, "LUME"));
 
 };  // Users
 
-EOSIO_ABI(Users, (createuser)(removeuser)(setemail)(setname)(setdob)(getuser)(
-                     updateflist)(createpoll)(answerpoll)(removepoll))
+EOSIO_ABI(Users, (createuser)(removeuser)(createpoll)(removepoll))
 
 }  // namespace lumeos
 

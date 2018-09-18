@@ -32,33 +32,17 @@
 
 namespace lumeos {
 
-struct PollChoice {
-    PollChoice() : m_answer(), m_count() {}
-    explicit PollChoice(std::string const &answer)
-        : m_answer(answer), m_count(0) {}
-
-    std::string m_answer;
-    uint32_t m_count;
-
-    EOSLIB_SERIALIZE(PollChoice, (m_answer)(m_count))
-};
-
 //@abi table poll i64
 struct poll {
     uint64_t m_pollId;
-    std::string m_question;
-    std::vector<PollChoice> m_choices;
-    std::vector<std::string> m_tags;
     double m_price;
-    eosio::name m_creator;
-    std::vector<eosio::name> m_participants;
+    std::string m_ipfsHash;
 
-    poll() : m_pollId(0), m_question(), m_choices(), m_tags(), m_price(0) {}
+    poll() : m_pollId(0), m_price(0), m_ipfsHash() {}
 
     uint64_t primary_key() const { return m_pollId; }
 
-    EOSLIB_SERIALIZE(poll, (m_pollId)(m_question)(m_choices)(m_tags)(m_price)(
-                               m_creator)(m_participants))
+    EOSLIB_SERIALIZE(poll, (m_pollId)(m_price)(m_ipfsHash))
 };
 
 }  // namespace lumeos
