@@ -43,7 +43,7 @@ struct user {
 
     uint64_t primary_key() const { return m_accountName; }
 
-    EOSLIB_SERIALIZE(user, (m_accountName)(m_userId))
+    EOSLIB_SERIALIZE(user, (m_accountName)(m_userId)(m_ipfsHash))
 };
 
 }  // namespace lumeos

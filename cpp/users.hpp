@@ -29,6 +29,7 @@
 #include <user.hpp>
 
 #include <eosiolib/symbol.hpp>
+#include <eosiolib/asset.hpp>
 
 namespace lumeos {
 
@@ -43,28 +44,33 @@ struct Users : public eosio::contract {
     void createuser(eosio::name const accountName, uint32_t userId, std::string const& ipfsHash);
 
     // @abi action
+    void updateuser(eosio::name const accountName, uint32_t userId, std::string const& ipfsHash);
+
+    // @abi action
     void removeuser(eosio::name const accountName);
 
     // @abi action
-    void createpoll(eosio::name const& accountName,
-                    uint32_t pollId,
-                    double price,
+    void createpoll(uint32_t pollId,
+                    eosio::asset price,
+                    std::string const& ipfsHash);
+
+    // @abi action
+    void updatepoll(uint32_t pollId,
+                    eosio::asset price,
                     std::string const& ipfsHash);
 
     // @abi action
     void removepoll(eosio::name const& accountName, uint32_t pollId);
 
-    // TODO: buy poll
+    // @abi action
+    void buy(eosio::name const& buyer, uint32_t pollId);
 
    private:
     void validateUser(eosio::name const accountName);
 
-    eosio::symbol_type LUME =
-        eosio::symbol_type(eosio::string_to_symbol(4, "LUME"));
-
 };  // Users
 
-EOSIO_ABI(Users, (createuser)(removeuser)(createpoll)(removepoll))
+EOSIO_ABI(Users, (updatepoll)(createuser)(updateuser)(removeuser)(createpoll)(removepoll)(buy))
 
 }  // namespace lumeos
 
