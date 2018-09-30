@@ -25,8 +25,8 @@
 #ifndef LUMEOS_POLL_H
 #define LUMEOS_POLL_H
 
-#include <eosiolib/eosio.hpp>
 #include <eosiolib/asset.hpp>
+#include <eosiolib/eosio.hpp>
 
 #include <string>
 #include <vector>
@@ -35,12 +35,14 @@ namespace lumeos {
 
 //@abi table poll i64
 struct poll {
-
     uint64_t m_pollId;
     eosio::asset m_price;
     std::string m_ipfsHash;
 
-    poll() : m_pollId(0), m_price(0, eosio::string_to_symbol(4, "LUME")), m_ipfsHash() {}
+    poll()
+        : m_pollId(0),
+          m_price(0, eosio::string_to_symbol(4, "LUME")),
+          m_ipfsHash() {}
 
     uint64_t primary_key() const { return m_pollId; }
 

@@ -28,8 +28,8 @@
 #include <poll.hpp>
 #include <user.hpp>
 
-#include <eosiolib/symbol.hpp>
 #include <eosiolib/asset.hpp>
+#include <eosiolib/symbol.hpp>
 
 namespace lumeos {
 
@@ -41,22 +41,22 @@ struct Users : public eosio::contract {
     explicit Users(account_name self) : contract(self) {}
 
     // @abi action
-    void createuser(eosio::name const accountName, uint32_t userId, std::string const& ipfsHash);
+    void createuser(eosio::name const accountName, uint32_t userId,
+                    std::string const& ipfsHash);
 
     // @abi action
-    void updateuser(eosio::name const accountName, uint32_t userId, std::string const& ipfsHash);
+    void updateuser(eosio::name const accountName, uint32_t userId,
+                    std::string const& ipfsHash);
 
     // @abi action
     void removeuser(eosio::name const accountName);
 
     // @abi action
-    void createpoll(uint32_t pollId,
-                    eosio::asset price,
+    void createpoll(uint32_t pollId, eosio::asset price,
                     std::string const& ipfsHash);
 
     // @abi action
-    void updatepoll(uint32_t pollId,
-                    eosio::asset price,
+    void updatepoll(uint32_t pollId, eosio::asset price,
                     std::string const& ipfsHash);
 
     // @abi action
@@ -70,7 +70,8 @@ struct Users : public eosio::contract {
 
 };  // Users
 
-EOSIO_ABI(Users, (updatepoll)(createuser)(updateuser)(removeuser)(createpoll)(removepoll)(buy))
+EOSIO_ABI(Users, (updatepoll)(createuser)(updateuser)(removeuser)(createpoll)(
+                     removepoll)(buy))
 
 }  // namespace lumeos
 

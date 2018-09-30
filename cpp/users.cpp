@@ -43,11 +43,8 @@ auto getUserItr(eosio::name const accountName,
 
 }  // namespace
 
-void lumeos::Users::createuser(
-    eosio::name const accountName,
-    uint32_t userId,
-    std::string const& ipfsHash) {
-
+void lumeos::Users::createuser(eosio::name const accountName, uint32_t userId,
+                               std::string const& ipfsHash) {
     require_auth(_self);
 
     // TODO: Check userId existance, someone might want to override
@@ -66,11 +63,8 @@ void lumeos::Users::createuser(
     eosio::print(std::string("created: " + accountName.to_string()).c_str());
 }
 
-void lumeos::Users::updateuser(
-    eosio::name const accountName,
-    uint32_t userId,
-    std::string const& ipfsHash) {
-
+void lumeos::Users::updateuser(eosio::name const accountName, uint32_t userId,
+                               std::string const& ipfsHash) {
     require_auth(_self);
 
     // TODO: Check userId existance, someone might want to override
@@ -105,37 +99,37 @@ void lumeos::Users::validateUser(eosio::name const accountName) {
         std::string("User not found: " + accountName.to_string()).c_str());
 }
 
-void lumeos::Users::createpoll(uint32_t pollId, eosio::asset price, std::string const& ipfsHash) {
+void lumeos::Users::createpoll(uint32_t pollId, eosio::asset price,
+                               std::string const& ipfsHash) {
     require_auth(_self);
 
     eosio_assert(price.is_valid(), "invalid price");
-    eosio_assert(price.amount > 0, "must deposit positive quantity" );
+    eosio_assert(price.amount > 0, "must deposit positive quantity");
 
     pollIndex polls(_self, _self);
     // TODO: Check if poll already exists
 
     polls.emplace(_self, [&](auto& poll) {
-        poll.m_pollId = pollId,
-        poll.m_price = price;
+        poll.m_pollId = pollId, poll.m_price = price;
         poll.m_ipfsHash = ipfsHash;
     });
 }
 
 // 'updatepoll' will be called very often on every poll answer.
 // investigate if there is any savings on overloading without price update
-void lumeos::Users::updatepoll(uint32_t pollId, eosio::asset price, std::string const& ipfsHash) {
+void lumeos::Users::updatepoll(uint32_t pollId, eosio::asset price,
+                               std::string const& ipfsHash) {
     require_auth(_self);
 
     eosio_assert(price.is_valid(), "invalid price");
-    eosio_assert(price.amount > 0, "must deposit positive quantity" );
+    eosio_assert(price.amount > 0, "must deposit positive quantity");
 
     pollIndex polls(_self, _self);
     auto pollItr = polls.find(pollId);
     eosio_assert(pollItr != polls.end(), "Poll not found.");
 
     polls.modify(pollItr, _self, [&](auto& poll) {
-        poll.m_pollId = pollId,
-        poll.m_price = price;
+        poll.m_pollId = pollId, poll.m_price = price;
         poll.m_ipfsHash = ipfsHash;
     });
 }
@@ -155,7 +149,7 @@ void lumeos::Users::removepoll(eosio::name const& accountName,
 void lumeos::Users::buy(eosio::name const& buyer, uint32_t pollId) {
     eosio::print("legit here");
     require_auth(buyer);
-    validateUser(buyer); // just as safety that person is in the system
+    validateUser(buyer);  // just as safety that person is in the system
 
     pollIndex polls(_self, _self);
     auto pollItr = polls.find(pollId);
@@ -163,8 +157,9 @@ void lumeos::Users::buy(eosio::name const& buyer, uint32_t pollId) {
 
     eosio::asset pollPrice = pollItr->m_price;
     eosio_assert(pollPrice.is_valid(), "invalid price");
-    eosio_assert(pollPrice.amount > 0, "must deposit positive quantity" );
-    eosio::action(eosio::permission_level{buyer, N(active)},
-                 N(lumeos.token), N(transfer), make_tuple(buyer,
-    N(lumeosbank), pollPrice, std::string(""))).send();
+    eosio_assert(pollPrice.amount > 0, "must deposit positive quantity");
+    eosio::action(eosio::permission_level{buyer, N(active)}, N(lumeos.token),
+                  N(transfer),
+                  make_tuple(buyer, N(lumeosbank), pollPrice, std::string("")))
+        .send();
 }

@@ -38,8 +38,7 @@ struct user {
     uint32_t m_userId;
     std::string m_ipfsHash;
 
-    user()
-        : m_accountName(), m_userId(0) {}
+    user() : m_accountName(), m_userId(0) {}
 
     uint64_t primary_key() const { return m_accountName; }
 
