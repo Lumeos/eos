@@ -22,8 +22,8 @@
 //  IN THE SOFTWARE.
 //
 
-#ifndef LUMEOS_USERS_H
-#define LUMEOS_USERS_H
+#ifndef LUMEOS_LUMEOS_H
+#define LUMEOS_LUMEOS_H
 
 #include <poll.hpp>
 #include <user.hpp>
@@ -33,20 +33,18 @@
 
 namespace lumeos {
 
-struct Users : public eosio::contract {
+struct Lumeos : public eosio::contract {
    public:
     using userIndex = eosio::multi_index<N(user), user>;
     using pollIndex = eosio::multi_index<N(poll), poll>;
 
-    explicit Users(account_name self) : contract(self) {}
+    explicit Lumeos(capi_name self) : contract(self) {}
 
     // @abi action
-    void createuser(eosio::name const accountName, uint32_t userId,
-                    std::string const& ipfsHash);
+    void createuser(eosio::name const accountName, std::string const& ipfsHash);
 
     // @abi action
-    void updateuser(eosio::name const accountName, uint32_t userId,
-                    std::string const& ipfsHash);
+    void updateuser(eosio::name const accountName, std::string const& ipfsHash);
 
     // @abi action
     void removeuser(eosio::name const accountName);
@@ -68,11 +66,11 @@ struct Users : public eosio::contract {
    private:
     void validateUser(eosio::name const accountName);
 
-};  // Users
+};  // Lumeos
 
-EOSIO_ABI(Users, (updatepoll)(createuser)(updateuser)(removeuser)(createpoll)(
+EOSIO_ABI(Lumeos, (updatepoll)(createuser)(updateuser)(removeuser)(createpoll)(
                      removepoll)(buy))
 
 }  // namespace lumeos
 
-#endif  // LUMEOS_USERS_H
+#endif  // LUMEOS_LUMEOS_H

@@ -35,14 +35,13 @@ namespace lumeos {
 //@abi table user i64
 struct user {
     eosio::name m_accountName;
-    uint32_t m_userId;
     std::string m_ipfsHash;
 
-    user() : m_accountName(), m_userId(0) {}
+    user() : m_accountName() {}
 
     uint64_t primary_key() const { return m_accountName; }
 
-    EOSLIB_SERIALIZE(user, (m_accountName)(m_userId)(m_ipfsHash))
+    EOSLIB_SERIALIZE(user, (m_accountName)(m_ipfsHash))
 };
 
 }  // namespace lumeos

@@ -41,7 +41,7 @@ struct poll {
 
     poll()
         : m_pollId(0),
-          m_price(0, eosio::string_to_symbol(4, "LUME")),
+          m_price(0, eosio::symbol(eosio::symbol_code("LUME", 4))),
           m_ipfsHash() {}
 
     uint64_t primary_key() const { return m_pollId; }
