@@ -33,18 +33,15 @@
 
 namespace lumeos {
 
-struct Lumeos : public eosio::contract {
+CONTRACT Lumeos : public eosio::contract {
    public:
-    using userIndex = eosio::multi_index<N(user), user>;
-    using pollIndex = eosio::multi_index<N(poll), poll>;
+    using eosio::contract::contract;
+    using userIndex = eosio::multi_index<"user"_n, user>;
+    using pollIndex = eosio::multi_index<"poll"_n, poll>;
 
-    explicit Lumeos(capi_name self) : contract(self) {}
+    ACTION createuser(eosio::name const accountName, std::string const& ipfsHash);
 
-    // @abi action
-    void createuser(eosio::name const accountName, std::string const& ipfsHash);
-
-    // @abi action
-    void updateuser(eosio::name const accountName, std::string const& ipfsHash);
+    ACTION updateuser(eosio::name const accountName, std::string const& ipfsHash);
 
     // @abi action
     void removeuser(eosio::name const accountName);
@@ -68,7 +65,7 @@ struct Lumeos : public eosio::contract {
 
 };  // Lumeos
 
-EOSIO_ABI(Lumeos, (updatepoll)(createuser)(updateuser)(removeuser)(createpoll)(
+EOSIO_DISPATCH(Lumeos, (updatepoll)(createuser)(updateuser)(removeuser)(createpoll)(
                      removepoll)(buy))
 
 }  // namespace lumeos

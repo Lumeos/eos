@@ -32,14 +32,16 @@
 
 namespace lumeos {
 
-//@abi table user i64
-struct user {
+TABLE user {
     eosio::name m_accountName;
     std::string m_ipfsHash;
 
     user() : m_accountName() {}
 
-    uint64_t primary_key() const { return m_accountName; }
+    uint64_t primary_key() const { return static_cast<eosio::name::raw>(m_accountName); }
+
+    constexpr operator eosio::name::raw() const {
+        return static_cast<eosio::name::raw>(m_accountName); }
 
     EOSLIB_SERIALIZE(user, (m_accountName)(m_ipfsHash))
 };
