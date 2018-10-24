@@ -22,7 +22,7 @@
 //  IN THE SOFTWARE.
 //
 
-#include <lumeos.hpp>
+#include "lumeos.hpp"
 
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/print.hpp>
@@ -33,7 +33,7 @@ namespace {
 
 auto getUserItr(eosio::name const accountName,
                 lumeos::Lumeos::userIndex const& users) {
-    auto result = users.find(accountName);
+    auto result = users.find(accountName.value);
     eosio_assert(
         result != users.end(),
         std::string("User not found: " + accountName.to_string()).c_str());
@@ -47,8 +47,8 @@ void lumeos::Lumeos::createuser(eosio::name const accountName,
                                std::string const& ipfsHash) {
     require_auth(_self);
 
-    userIndex users(_self, _self);
-    eosio_assert(users.find(accountName) == users.end(),
+    userIndex users(_self, _self.value);
+    eosio_assert(users.find(accountName.value) == users.end(),
                  "User already exists.");
 
     users.emplace(_self, [&](auto& user) {
@@ -63,7 +63,7 @@ void lumeos::Lumeos::updateuser(eosio::name const accountName,
                                std::string const& ipfsHash) {
     require_auth(_self);
 
-    userIndex users(_self, _self);
+    userIndex users(_self, _self.value);
     auto userItr = getUserItr(accountName, users);
     users.modify(userItr, _self, [&](auto& user) {
         user.m_accountName = accountName;
@@ -74,16 +74,16 @@ void lumeos::Lumeos::updateuser(eosio::name const accountName,
 void lumeos::Lumeos::removeuser(eosio::name const accountName) {
     require_auth(_self);
 
-    userIndex users(_self, _self);
-    auto accountItr = users.find(accountName);
+    userIndex users(_self, _self.value);
+    auto accountItr = users.find(accountName.value);
     eosio_assert(accountItr != users.end(), "User not found.");
     users.erase(accountItr);
 }
 
 void lumeos::Lumeos::validateUser(eosio::name const accountName) {
-    userIndex users(_self, _self);
+    userIndex users(_self, _self.value);
     eosio_assert(
-        users.find(accountName) != users.end(),
+        users.find(accountName.value) != users.end(),
         std::string("User not found: " + accountName.to_string()).c_str());
 }
 
@@ -94,7 +94,7 @@ void lumeos::Lumeos::createpoll(uint32_t pollId, eosio::asset price,
     eosio_assert(price.is_valid(), "invalid price");
     eosio_assert(price.amount > 0, "must deposit positive quantity");
 
-    pollIndex polls(_self, _self);
+    pollIndex polls(_self, _self.value);
     eosio_assert(polls.find(pollId) == polls.end(),
                  "Poll id already exists.");
 
@@ -114,7 +114,7 @@ void lumeos::Lumeos::updatepoll(uint32_t pollId, eosio::asset price,
     eosio_assert(price.is_valid(), "invalid price");
     eosio_assert(price.amount > 0, "must deposit positive quantity");
 
-    pollIndex polls(_self, _self);
+    pollIndex polls(_self, _self.value);
     auto pollItr = polls.find(pollId);
     eosio_assert(pollItr != polls.end(), "Poll not found.");
 
@@ -128,7 +128,7 @@ void lumeos::Lumeos::removepoll(eosio::name const& accountName,
                                uint32_t pollId) {
     require_auth(_self);
     validateUser(accountName);
-    pollIndex polls(_self, _self);
+    pollIndex polls(_self, _self.value);
 
     auto pollItr = polls.find(pollId);
     eosio_assert(pollItr != polls.end(), "Poll not found.");
@@ -140,16 +140,17 @@ void lumeos::Lumeos::buy(eosio::name const& buyer, uint32_t pollId) {
     require_auth(buyer);
     validateUser(buyer);  // just as safety that person is in the system
 
-    pollIndex polls(_self, _self);
+    pollIndex polls(_self, _self.value);
     auto pollItr = polls.find(pollId);
     eosio_assert(pollItr != polls.end(), "Poll not found.");
 
     eosio::asset pollPrice = pollItr->m_price;
     eosio_assert(pollPrice.is_valid(), "invalid price");
     eosio_assert(pollPrice.amount > 0, "negative price");
-    std::stding const memo = "b:" + buyer.to_string() + ";pid:" + std::to_string(pollId) + ";p:" + pollPrice.amount;
-    eosio::action(eosio::permission_level{buyer, N(active)}, N(lumeostokens),
-                  N(transfer),
-                  make_tuple(buyer, N(lumeosbank), pollPrice, memo))
+    std::string const memo = "b:" + buyer.to_string() + ";pid:" + std::to_string(pollId) + ";p:" +
+        std::to_string(pollPrice.amount);
+    eosio::action(eosio::permission_level{buyer, "active"_n}, "lumeostokens"_n,
+                  "transfer"_n,
+                  make_tuple(buyer, "lumeosbank"_n, pollPrice, memo))
         .send();
 }

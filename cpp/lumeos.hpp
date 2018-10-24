@@ -25,8 +25,8 @@
 #ifndef LUMEOS_LUMEOS_H
 #define LUMEOS_LUMEOS_H
 
-#include <poll.hpp>
-#include <user.hpp>
+#include "poll.hpp"
+#include "user.hpp"
 
 #include <eosiolib/asset.hpp>
 #include <eosiolib/symbol.hpp>

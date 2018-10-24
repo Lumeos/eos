@@ -38,7 +38,7 @@ TABLE user {
 
     user() : m_accountName() {}
 
-    uint64_t primary_key() const { return static_cast<eosio::name::raw>(m_accountName); }
+    uint64_t primary_key() const { return m_accountName.value; }
 
     constexpr operator eosio::name::raw() const {
         return static_cast<eosio::name::raw>(m_accountName); }
