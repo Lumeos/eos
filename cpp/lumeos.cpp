@@ -149,6 +149,6 @@ void lumeos::Lumeos::buy(eosio::name const& buyer, uint64_t pollId) {
                              ";p:" + std::to_string(pollPrice.amount);
     eosio::action(eosio::permission_level{buyer, "active"_n}, "lumeostokens"_n,
                   "transfer"_n,
-                  make_tuple(buyer, "lumeosbank"_n, pollPrice, memo))
+                  make_tuple(buyer, "lumeoslumeos"_n, pollPrice, memo))
         .send();
 }
