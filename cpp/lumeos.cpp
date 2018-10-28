@@ -44,7 +44,7 @@ auto getUserItr(eosio::name const accountName,
 }  // namespace
 
 void lumeos::Lumeos::createuser(eosio::name const accountName,
-                               std::string const& ipfsHash) {
+                                std::string const& ipfsHash) {
     require_auth(_self);
 
     userIndex users(_self, _self.value);
@@ -60,7 +60,7 @@ void lumeos::Lumeos::createuser(eosio::name const accountName,
 }
 
 void lumeos::Lumeos::updateuser(eosio::name const accountName,
-                               std::string const& ipfsHash) {
+                                std::string const& ipfsHash) {
     require_auth(_self);
 
     userIndex users(_self, _self.value);
@@ -88,15 +88,14 @@ void lumeos::Lumeos::validateUser(eosio::name const accountName) {
 }
 
 void lumeos::Lumeos::createpoll(uint64_t pollId, eosio::asset price,
-                               std::string const& ipfsHash) {
+                                std::string const& ipfsHash) {
     require_auth(_self);
 
     eosio_assert(price.is_valid(), "invalid price");
     eosio_assert(price.amount > 0, "must deposit positive quantity");
 
     pollIndex polls(_self, _self.value);
-    eosio_assert(polls.find(pollId) == polls.end(),
-                 "Poll id already exists.");
+    eosio_assert(polls.find(pollId) == polls.end(), "Poll id already exists.");
 
     polls.emplace(_self, [&](auto& poll) {
         poll.m_pollId = pollId;
@@ -108,7 +107,7 @@ void lumeos::Lumeos::createpoll(uint64_t pollId, eosio::asset price,
 // 'updatepoll' will be called very often on every poll answer.
 // investigate if there is any savings on overloading without price update
 void lumeos::Lumeos::updatepoll(uint64_t pollId, eosio::asset price,
-                               std::string const& ipfsHash) {
+                                std::string const& ipfsHash) {
     require_auth(_self);
 
     eosio_assert(price.is_valid(), "invalid price");
@@ -145,8 +144,9 @@ void lumeos::Lumeos::buy(eosio::name const& buyer, uint64_t pollId) {
     eosio::asset pollPrice = pollItr->m_price;
     eosio_assert(pollPrice.is_valid(), "invalid price");
     eosio_assert(pollPrice.amount > 0, "negative price");
-    std::string const memo = "b:" + buyer.to_string() + ";pid:" + std::to_string(pollId) + ";p:" +
-        std::to_string(pollPrice.amount);
+    std::string const memo = "b:" + buyer.to_string() +
+                             ";pid:" + std::to_string(pollId) +
+                             ";p:" + std::to_string(pollPrice.amount);
     eosio::action(eosio::permission_level{buyer, "active"_n}, "lumeostokens"_n,
                   "transfer"_n,
                   make_tuple(buyer, "lumeosbank"_n, pollPrice, memo))

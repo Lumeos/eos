@@ -41,7 +41,8 @@ TABLE user {
     uint64_t primary_key() const { return m_accountName.value; }
 
     constexpr operator eosio::name::raw() const {
-        return static_cast<eosio::name::raw>(m_accountName); }
+        return static_cast<eosio::name::raw>(m_accountName);
+    }
 
     EOSLIB_SERIALIZE(user, (m_accountName)(m_ipfsHash))
 };
