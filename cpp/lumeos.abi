@@ -96,7 +96,7 @@
                 },
                 {
                     "name" : "pollId",
-                    "type" : "uint32"
+                    "type" : "uint64"
                 }
             ]
         },
