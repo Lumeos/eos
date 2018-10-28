@@ -24,6 +24,11 @@ THE SOFTWARE.
 
 -->
 
+mkdir build
+cd build
+cmake path/to/cpp
+make
+
 # To contribute:
 Please run `format_cpp.sh` before commiting
 

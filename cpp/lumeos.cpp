@@ -87,7 +87,7 @@ void lumeos::Lumeos::validateUser(eosio::name const accountName) {
         std::string("User not found: " + accountName.to_string()).c_str());
 }
 
-void lumeos::Lumeos::createpoll(uint32_t pollId, eosio::asset price,
+void lumeos::Lumeos::createpoll(uint64_t pollId, eosio::asset price,
                                std::string const& ipfsHash) {
     require_auth(_self);
 
@@ -107,7 +107,7 @@ void lumeos::Lumeos::createpoll(uint32_t pollId, eosio::asset price,
 
 // 'updatepoll' will be called very often on every poll answer.
 // investigate if there is any savings on overloading without price update
-void lumeos::Lumeos::updatepoll(uint32_t pollId, eosio::asset price,
+void lumeos::Lumeos::updatepoll(uint64_t pollId, eosio::asset price,
                                std::string const& ipfsHash) {
     require_auth(_self);
 
@@ -124,10 +124,8 @@ void lumeos::Lumeos::updatepoll(uint32_t pollId, eosio::asset price,
     });
 }
 
-void lumeos::Lumeos::removepoll(eosio::name const& accountName,
-                               uint32_t pollId) {
+void lumeos::Lumeos::removepoll(uint64_t pollId) {
     require_auth(_self);
-    validateUser(accountName);
     pollIndex polls(_self, _self.value);
 
     auto pollItr = polls.find(pollId);
@@ -136,7 +134,7 @@ void lumeos::Lumeos::removepoll(eosio::name const& accountName,
     polls.erase(pollItr);
 }
 
-void lumeos::Lumeos::buy(eosio::name const& buyer, uint32_t pollId) {
+void lumeos::Lumeos::buy(eosio::name const& buyer, uint64_t pollId) {
     require_auth(buyer);
     validateUser(buyer);  // just as safety that person is in the system
 

@@ -1,0 +1,186 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Oct 27 16:44:58 2018",
+    "version": "eosio::abi/1.0",
+    "structs": [
+        {
+            "name" : "createuser",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "accountName",
+                    "type" : "name"
+                },
+                {
+                    "name" : "ipfsHash",
+                    "type" : "string"
+                },
+            ]
+        },
+        {
+            "name" : "updateuser",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "accountName",
+                    "type" : "name"
+                },
+                {
+                    "name" : "ipfsHash",
+                    "type" : "string"
+                },
+            ]
+        },
+        {
+            "name" : "removeuser",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "accountName",
+                    "type" : "name"
+                }
+            ]
+        },
+        {
+            "name" : "createpoll",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "pollId",
+                    "type" : "uint64"
+                },
+                {
+                    "name" : "price",
+                    "type" : "asset"
+                },
+                {
+                    "name" : "ipfsHash",
+                    "type" : "string"
+                },
+            ]
+        },
+        {
+            "name" : "updatepoll",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "pollId",
+                    "type" : "uint64"
+                },
+                {
+                    "name" : "price",
+                    "type" : "asset"
+                },
+                {
+                    "name" : "ipfsHash",
+                    "type" : "string"
+                },
+            ]
+        },
+        {
+            "name" : "removepoll",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "pollId",
+                    "type" : "uint64"
+                }
+            ]
+        },
+        {
+            "name" : "buy",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "buyer",
+                    "type" : "name"
+                },
+                {
+                    "name" : "pollId",
+                    "type" : "uint32"
+                }
+            ]
+        },
+        {
+            "name" : "user",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "m_accountName",
+                    "type" : "name"
+                },
+                {
+                    "name" : "m_ipfsHash",
+                    "type" : "string"
+                },
+            ]
+        },
+        {
+            "name" : "poll",
+            "base" : "",
+            "fields" : [
+                {
+                    "name" : "m_pollId",
+                    "type" : "uint64"
+                },
+                {
+                    "name" : "m_price",
+                    "type" : "asset"
+                },
+                {
+                    "name" : "m_ipfsHash",
+                    "type" : "string"
+                },
+            ]
+        },
+    ],
+    "types": [],
+    "actions": [
+      {
+        "name": "createuser",
+        "type": "createuser",
+        "ricardian_contract": ""
+      },{
+        "name": "updateuser",
+        "type": "updateuser",
+        "ricardian_contract": ""
+      }, {
+        "name": "removeuser",
+        "type": "removeuser",
+        "ricardian_contract": ""
+      },
+      {
+        "name": "createpoll",
+        "type": "createpoll",
+        "ricardian_contract": ""
+      },{
+        "name": "updatepoll",
+        "type": "updatepoll",
+        "ricardian_contract": ""
+      }, {
+        "name": "removepoll",
+        "type": "removepoll",
+        "ricardian_contract": ""
+      },
+      {
+        "name": "buy",
+        "type": "buy",
+        "ricardian_contract": ""
+      }
+    ],
+    "tables": [{
+        "name": "user",
+        "type": "user",
+        "index_type": "i64",
+        "key_names" : ["userName"],
+        "key_types" : ["uint64"]
+      },{
+        "name": "poll",
+        "type": "poll",
+        "index_type": "i64",
+        "key_names" : ["pollId"],
+        "key_types" : ["uint64"]
+      }
+    ],
+    "ricardian_clauses": [],
+    "abi_extensions": []
+}

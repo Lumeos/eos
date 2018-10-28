@@ -43,22 +43,17 @@ CONTRACT Lumeos : public eosio::contract {
 
     ACTION updateuser(eosio::name const accountName, std::string const& ipfsHash);
 
-    // @abi action
-    void removeuser(eosio::name const accountName);
+    ACTION removeuser(eosio::name const accountName);
 
-    // @abi action
-    void createpoll(uint32_t pollId, eosio::asset price,
-                    std::string const& ipfsHash);
+    ACTION createpoll(uint64_t pollId, eosio::asset price,
+                      std::string const& ipfsHash);
 
-    // @abi action
-    void updatepoll(uint32_t pollId, eosio::asset price,
-                    std::string const& ipfsHash);
+    ACTION updatepoll(uint64_t pollId, eosio::asset price,
+                      std::string const& ipfsHash);
 
-    // @abi action
-    void removepoll(eosio::name const& accountName, uint32_t pollId);
+    ACTION removepoll(uint64_t pollId);
 
-    // @abi action
-    void buy(eosio::name const& buyer, uint32_t pollId);
+    ACTION buy(eosio::name const& buyer, uint64_t pollId);
 
    private:
     void validateUser(eosio::name const accountName);
